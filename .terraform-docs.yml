@@ -1,0 +1,10 @@
+formatter: markdown
+
+output:
+  file: terraform.md
+  mode: replace
+  template: |-
+    {{ .Content }}
+
+settings:
+  hide-empty: true

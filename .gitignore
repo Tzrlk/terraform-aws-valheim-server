@@ -1,0 +1,37 @@
+*.log
+
+# IntelliJ
+.idea/
+*.iml
+
+# Terraform
+.terraform/
+terraform.drift.json
+terraform.tfplan*
+*.tfvars
+*.backup
+
+# Docker
+/src/docker-compose.yml
+
+# Npm
+node_modules/
+*.tsbuildinfo
+
+# Typescript
+src/**/*.js
+src/**/*.d.ts
+src/**/imported.ts
+
+# CDK
+cdktf.out/
+
+# Make
+.make/
+.build/*/
+
+# Python
+__pypackages__/
+.pytest_cache/
+.venv/
+.python-version
