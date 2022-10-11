@@ -2,35 +2,31 @@ terraform {
 	required_providers {
 		aws = {
 			source  = "hashicorp/aws"
-			version = "~> 4.6"
+			version = ">= 4"
 		}
 		docker = {
-			source  = "kreuzwerker/docker"
-			version = "~> 2.16"
+			source = "kreuzwerker/docker"
 		}
 		external = {
-			source  = "hashicorp/external"
-			version = "~> 2.2.2"
+			source = "hashicorp/external"
 		}
 		http = {
-			source  = "hashicorp/http"
-			version = "~> 2.1"
+			source = "hashicorp/http"
 		}
 		local = {
-			source  = "hashicorp/local"
-			version = "~> 2.2.3"
+			source = "hashicorp/local"
 		}
 	}
 }
 
 provider "aws" {
-	region = "ap-southeast-2"
 	default_tags {
 		tags = {
 			Application = "Valheim"
 		}
 	}
 }
+data "aws_region" "current" {}
 
 provider "docker" {
 	host = "tcp://localhost:2375"

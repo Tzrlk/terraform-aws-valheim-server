@@ -2,20 +2,15 @@
 
 # Make sure we know when the image changes.
 data "docker_registry_image" "DnsUpdater" {
-	name = "qmcgaw/ddns-updater:latest"
+	name = var.freedns_image
 }
 
-variable "DnsUpdaterToken" {
-	description = "The token used to authenticate against the dns provider."
-	type        = string
-	sensitive   = true
-}
 locals {
 	DnsUpdaterConfig = {
 		provider    = "freedns"
-		domain      = "jumpingcrab.com"
-		host        = "vikongs"
-		token       = var.DnsUpdaterToken
+		domain      = var.freedns_domain
+		host        = var.freedns_host
+		token       = var.freedns_token
 		ip_version  = "ipv4"
 	}
 }

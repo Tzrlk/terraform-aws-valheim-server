@@ -20,7 +20,7 @@ locals {
 			initProcessEnabled = true
 		}
 		environment = [
-			{ name = "TZ", value = "Pacific/Auckland" },
+			{ name = "TZ", value = var.server_timezone },
 		]
 		healthCheck = {
 			interval    = 30
@@ -31,8 +31,8 @@ locals {
 		logConfiguration = {
 			logDriver = "awslogs",
 			options   = {
-				awslogs-group : aws_cloudwatch_log_group.ValheimLogs.name
-				awslogs-region : "ap-southeast-2"
+				awslogs-group  = aws_cloudwatch_log_group.ValheimLogs.name
+				awslogs-region = data.aws_region.current.name
 			}
 		}
 	}
@@ -63,11 +63,6 @@ resource "aws_ecs_task_definition" "Valheim" {
 	}
 }
 
-variable "RunServer" {
-	description = "Whether or not to run the server."
-	type        = bool
-	default     = false
-}
 resource "aws_ecs_service" "Valheim" {
 	lifecycle { ignore_changes = [ desired_count ] }
 	depends_on = [
@@ -83,7 +78,7 @@ resource "aws_ecs_service" "Valheim" {
 	enable_execute_command = true
 	force_new_deployment   = true
 
-	desired_count                      = var.RunServer ? 1 : 0
+	desired_count                      = var.enable_server ? 1 : 0
 	deployment_minimum_healthy_percent = 0
 	deployment_maximum_percent         = 100
 

@@ -44,13 +44,8 @@ resource "aws_iam_role_policy" "VpcFlowLogs" {
 }
 
 ## FLOW LOG ENABLEMENT #########################################################
-variable "VpcFlowLogs" {
-	description = "Monitor all network traffic in the VPC."
-	type        = bool
-	default     = false
-}
 resource "aws_flow_log" "VpcFlowLogs" {
-	count = var.VpcFlowLogs ? 1 : 0
+	count = var.enable_flowlogs ? 1 : 0
 
 	log_destination = aws_cloudwatch_log_group.VpcFlowLogs.arn
 	iam_role_arn    = aws_iam_role.VpcFlowLogs.arn
