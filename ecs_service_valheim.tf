@@ -23,7 +23,7 @@ locals {
 		memory       = 1000 * local.TaskResFactors.Mem
 		environment = concat(local.ContainerDefaults.environment, [
 			# https://github.com/lloesche/valheim-server-docker?msclkid=579e1618cf0e11ecaf755c38b2fade9e#environment-variables
-			{ name = "SERVER_NAME",          value = coalesce(var.server_name, var.server_name) },
+			{ name = "SERVER_NAME",          value = coalesce(var.server_name, var.world_name) },
 			{ name = "SERVER_PORT",          value = tostring(local.ValheimPorts.Min) },
 			{ name = "WORLD_NAME",           value = var.world_name },
 			{ name = "BACKUPS_IF_IDLE",      value = "false" },

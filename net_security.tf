@@ -12,7 +12,7 @@ data "http" "ExternalIp" {
 	url = "https://ifconfig.me"
 }
 locals {
-	ExternalIp = trimspace(data.http.ExternalIp.body)
+	ExternalIp = trimspace(data.http.ExternalIp.response_body)
 }
 
 resource "aws_security_group_rule" "AnywhereToClusterStatus" {
@@ -191,7 +191,7 @@ resource "aws_network_acl" "Firewall" {
 		rule_no    = 30
 		protocol   = "tcp"
 		from_port  = 53
-		to_port    = 53 
+		to_port    = 53
 		cidr_block = "0.0.0.0/0"
 		action     = "allow"
 	}

@@ -4,13 +4,13 @@
 variable "world_name" {
 	description = "The name of the valheim world to load. Defaults to server name."
 	type        = string
-	default     = ""
 }
 
 ## Server Options #############################################################
 variable "server_name" {
 	description = "The name of the world and server."
 	type        = string
+	default     = ""
 }
 variable "server_pass" {
 	description = "The password for the Valheim server."

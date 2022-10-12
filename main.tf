@@ -19,15 +19,4 @@ terraform {
 	}
 }
 
-provider "aws" {
-	default_tags {
-		tags = {
-			Application = "Valheim"
-		}
-	}
-}
 data "aws_region" "current" {}
-
-provider "docker" {
-	host = "tcp://localhost:2375"
-}
