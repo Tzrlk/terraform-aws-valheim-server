@@ -15,109 +15,45 @@ locals {
 	ExternalIp = trimspace(data.http.ExternalIp.response_body)
 }
 
-resource "aws_security_group_rule" "AnywhereToClusterStatus" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "ingress"
-	protocol          = "tcp"
-	to_port           = local.ValheimPorts.Status
-	from_port         = local.ValheimPorts.Status
-}
-resource "aws_security_group_rule" "AnywhereToClusterSuper" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "${local.ExternalIp}/32" ]
-	type              = "ingress"
-	protocol          = "tcp"
-	to_port           = local.ValheimPorts.Super
-	from_port         = local.ValheimPorts.Super
-}
-resource "aws_security_group_rule" "AnywhereToClusterDdns" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "${local.ExternalIp}/32" ]
-	type              = "ingress"
-	protocol          = "tcp"
-	to_port           = local.ValheimPorts.Ddns
-	from_port         = local.ValheimPorts.Ddns
-}
-resource "aws_security_group_rule" "AnywhereToClusterHttps" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "ingress"
-	protocol          = "tcp"
-	to_port           = 443
-	from_port         = 443
-}
-resource "aws_security_group_rule" "AnywhereToClusterDnsTcp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "ingress"
-	protocol          = "tcp"
-	to_port           = 53
-	from_port         = 53
-}
-resource "aws_security_group_rule" "AnywhereToClusterDnsUdp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "ingress"
-	protocol          = "udp"
-	to_port           = 53
-	from_port         = 53
-}
-resource "aws_security_group_rule" "AnywhereToClusterValheimUdp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "ingress"
-	protocol          = "udp"
-	from_port         = local.ValheimPorts.Min
-	to_port           = local.ValheimPorts.Max
-}
-resource "aws_security_group_rule" "AnywhereToClusterValheimTcp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "ingress"
-	protocol          = "tcp"
-	from_port         = local.ValheimPorts.Min
-	to_port           = local.ValheimPorts.Max
-}
-resource "aws_security_group_rule" "ClusterToAnywhereDnsTcp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "egress"
-	protocol          = "tcp"
-	from_port         = 53
-	to_port           = 53
-}
-resource "aws_security_group_rule" "ClusterToAnywhereDnsUdp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "egress"
-	protocol          = "udp"
-	from_port         = 53
-	to_port           = 53
-}
-resource "aws_security_group_rule" "ClusterToAnywhereHttp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "egress"
-	protocol          = "tcp"
-	from_port         = 80
-	to_port           = 80
-}
-resource "aws_security_group_rule" "ClusterToAnywhereHttps" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "egress"
-	protocol          = "tcp"
-	from_port         = 443
-	to_port           = 443
-}
-resource "aws_security_group_rule" "ClusterToAnywhereValheimUdp" {
-	security_group_id = aws_security_group.Cluster.id
-	cidr_blocks       = [ "0.0.0.0/0" ]
-	type              = "egress"
-	protocol          = "udp"
-	from_port         = local.ValheimPorts.Min
-	to_port           = local.ValheimPorts.Max
+module "NetworkSecurity" {
+	source  = "tzrlk/network-security/aws"
+	version = "0.1.0"
+
+	SecurityGroupIds = {
+		Cluster = aws_security_group.Cluster.id
+	}
+	CidrBlocks = {
+		Anywhere = "0.0.0.0/0"
+		AdminBox = "${data.http.ExternalIp.response_body}/32"
+	}
+	PortRanges = {
+		Ddns    = { Min = 9002, Max = 9002 }
+		DnsTcp  = { Min =   53, Max =   53 }
+		DnsUdp  = { Min =   53, Max =   53, Proto = "udp" }
+		Http    = { Min =   80, Max =   80 }
+		Https   = { Min =  443, Max =  443 }
+		Super   = { Min = 9001, Max = 9001 }
+		Valheim = { Min = 2456, Max = 2458, Proto = "udp" }
+	}
+	Rules = {
+		AdminBox = { Cluster = [
+			"Super",
+		] }
+		Anywhere = { Cluster = [
+			"Ddns",
+			"DnsTcp",
+			"DnsUdp",
+			"Http",
+			"Valheim",
+		] }
+		Cluster = { Anywhere = [
+			"Http",
+			"Https",
+			"DnsTcp",
+			"DnsUdp",
+			"Valheim",
+		] }
+	}
 }
 
 resource "aws_network_acl" "Firewall" {
